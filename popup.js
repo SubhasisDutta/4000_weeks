@@ -157,7 +157,8 @@ document.addEventListener('DOMContentLoaded', function () {
     let displayRemainingHours = "N/A";
     let displayHourWorth = "N/A";
     let displayFinancialFreedom = "N/A";
-    let displayAmountNeeded = "N/A"; // New display variable
+    let displayAmountNeeded = "N/A";
+    let displayExpense = "N/A"; // New display variable for expense
 
     // Initial state for other divs - REMOVED as these divs are gone
     // if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = '';
@@ -166,6 +167,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const validatedNetWorth = getValidatedNetWorth(); // Get it once
     const monthSpending = getValidatedMonthSpending();
     const monthSavings = getValidatedMonthSavings();
+    const expense = monthSpending - monthSavings; // Calculate expense here
 
     if (!dobString) {
       if (errorMessagesDiv) {
@@ -199,35 +201,36 @@ document.addEventListener('DOMContentLoaded', function () {
           // const remainingTotalHours = remainingMilliseconds / (1000 * 60 * 60); // No longer displayed
           const actualTotalWeeklyHours = getValidatedWeeklyHours();
 
-          const expense = monthSpending - monthSavings;
+          // Expense and AmountNeeded are calculated regardless of remainingMilliseconds (as long as DOB/Lifespan valid)
+          displayExpense = `<b>$${expense.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
           const amountNeeded = expense > 0 ? (expense * 12 / 0.01) : 0;
-          displayAmountNeeded = '$' + amountNeeded.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+          displayAmountNeeded = `<b>$${amountNeeded.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
 
           if (remainingMilliseconds < 0) {
             if (errorMessagesDiv) {
               errorMessagesDiv.textContent = 'You have lived past your expected lifespan!';
               errorMessagesDiv.style.display = 'block'; // Show it
             }
-            // resultDiv.style.color = 'green'; // Style error message div directly if needed
-            displayRemainingWeeks = "0";
-            displayRemainingHours = "0";
-            displayHourWorth = "N/A";
-            displayFinancialFreedom = (validatedNetWorth * 0.01 / 12);
-            // if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = 'Approximately 0 total hours remaining.'; // Removed
+            displayRemainingWeeks = "<b>0</b>";
+            displayRemainingHours = "<b>0</b>";
+            displayHourWorth = "N/A"; // Still N/A as there are no remaining hours to calculate worth against
+            displayFinancialFreedom = `<b>$${(validatedNetWorth * 0.01 / 12).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
+            // displayExpense and displayAmountNeeded already calculated and bolded above
           } else {
             const weeksInMs = 1000 * 60 * 60 * 24 * 7;
             const calculatedRemainingWeeks = Math.ceil(remainingMilliseconds / weeksInMs);
             const calculatedRemainingHours = calculatedRemainingWeeks * actualTotalWeeklyHours;
 
-            displayRemainingWeeks = calculatedRemainingWeeks;
-            displayRemainingHours = calculatedRemainingHours;
+            displayRemainingWeeks = `<b>${calculatedRemainingWeeks.toLocaleString()}</b>`;
+            displayRemainingHours = `<b>${calculatedRemainingHours.toLocaleString(undefined, {maximumFractionDigits: 0})}</b>`;
 
             if (calculatedRemainingHours > 0) {
-              displayHourWorth = (validatedNetWorth / calculatedRemainingHours);
+              displayHourWorth = `<b>$${(validatedNetWorth / calculatedRemainingHours).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
             } else {
-              displayHourWorth = "N/A";
+              displayHourWorth = "N/A"; // Keep as N/A if no hours left or invalid
             }
-            displayFinancialFreedom = (validatedNetWorth * 0.01 / 12);
+            displayFinancialFreedom = `<b>$${(validatedNetWorth * 0.01 / 12).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
+            // displayExpense and displayAmountNeeded already calculated and bolded above
 
             // if (totalLifeHoursResultDiv) { // Removed
             //   totalLifeHoursResultDiv.textContent = `Approximately ${remainingTotalHours.toLocaleString(undefined, {maximumFractionDigits: 0})} total hours remaining.`;
@@ -245,9 +248,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
       }
     }
-    // If primary calculations failed, amountNeeded should also be N/A
+    // If primary calculations failed, amountNeeded and expense should also be N/A
     if (errorMessagesDiv && errorMessagesDiv.textContent !== '') {
         displayAmountNeeded = "N/A";
+        displayExpense = "N/A";
+        // Other specific displays like weeks, hours, hourworth, financialfreedom are set to "N/A"
+        // by default or specifically in error conditions.
     }
 
 
@@ -258,11 +264,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // }
 
     // Final Update of Result Div (Consolidated)
-    let line1 = `You have REMAINING : ${(typeof displayRemainingWeeks === 'number' ? displayRemainingWeeks.toLocaleString() : displayRemainingWeeks)} weeks (~ ${(typeof displayRemainingHours === 'number' ? displayRemainingHours.toLocaleString(undefined, {maximumFractionDigits: 0}) : displayRemainingHours)} hours).`;
-    let line2 = `Each hour is worth: ${typeof displayHourWorth === 'number' ? '$' + displayHourWorth.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : displayHourWorth}.`;
-    let line3 = `Auto Income: ${typeof displayFinancialFreedom === 'number' ? '$' + displayFinancialFreedom.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : displayFinancialFreedom}.`;
-    let line4 = `Freedom Aim : ${displayAmountNeeded}`;
+    // Variables are now strings, some containing HTML (<b> tags), or "N/A"
+    let line1 = `You have REMAINING : ${displayRemainingWeeks} weeks (~ ${displayRemainingHours} hours).`;
+    let line2 = `Each hour is worth: ${displayHourWorth}.`;
+    let line3 = `Auto Income: ${displayFinancialFreedom}.`;
+    let line4 = `Monthly Expense: ${displayExpense}.`;
+    let line5 = `Freedom Aim : ${displayAmountNeeded}`;
 
-    resultDiv.innerHTML = `${line1}<br>${line2}<br>${line3}<br>${line4}`;
+    resultDiv.innerHTML = `${line1}<br>${line2}<br>${line3}<br>${line4}<br>${line5}`;
   }
 });
