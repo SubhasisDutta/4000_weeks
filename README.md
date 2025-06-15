@@ -4,11 +4,24 @@ This repository contains a Chrome extension that calculates the approximate numb
 
 ## Features
 
-*   Calculates remaining weeks based on Date of Birth (DOB) and Expected Lifespan.
-*   Saves your DOB and Lifespan locally using `chrome.storage.local` so you don't have to enter them every time.
-*   User-friendly popup interface.
-*   Input validation for dates and lifespan.
-*   Automatic recalculation when input values change.
+*   Calculates remaining weeks and hours based on Date of Birth (DOB) and Expected Lifespan.
+*   Calculates the monetary worth of each remaining hour based on your current net worth.
+*   Estimates your "Auto Income" (passive monthly income from net worth, assuming a 1% annual return).
+*   Calculates your "Monthly Expense" (difference between monthly spending and savings).
+*   Determines your "Freedom Aim": the net worth required to cover your monthly expenses via passive income (based on a 1% annual return).
+*   Displays a progress bar showing your current net worth against your "Freedom Aim".
+*   Shows Today's Date and your Expected Day of Passing.
+*   Inputs for:
+    *   Date of Birth (DOB)
+    *   Expected Lifespan (in years)
+    *   Total Weekly Hours (customizable)
+    *   Current Net Worth
+    *   Month Total Spending
+    *   Month Savings
+*   Option to show/hide calculation input fields for a cleaner view.
+*   Saves all your inputs locally using `chrome.storage.local` for convenience.
+*   User-friendly popup interface with input validation.
+*   Calculations update in real-time as you type.
 
 ## Files and Structure
 
@@ -17,8 +30,11 @@ The extension is composed of the following files:
 *   `manifest.json`: Defines the extension's properties, permissions (storage), and popup action.
 *   `popup.html`: The HTML structure for the extension's popup interface.
 *   `popup.js`: Contains the JavaScript logic for:
-    *   Fetching and saving user inputs (DOB, lifespan).
-    *   Calculating remaining weeks.
+    *   Fetching and saving all user inputs (DOB, lifespan, weekly hours, net worth, spending, savings).
+    *   Performing all calculations (remaining time, financial metrics, etc.).
+    *   Managing the display of results, including the progress bar.
+    *   Handling the toggle for input field visibility.
+    *   Implementing real-time updates as input values change.
     *   Updating the popup display.
 *   `style.css`: Provides basic styling for the popup.
 *   `images/`: Contains placeholder icons for the extension (icon16.png, icon48.png, icon128.png).
@@ -47,6 +63,14 @@ The extension is composed of the following files:
     *   Enter your Date of Birth.
     *   Enter your Expected Lifespan (in years).
     *   The remaining weeks will be calculated and displayed. Your inputs will be saved for your next visit.
+
+## Popup Preview
+
+Below is an example of how the extension popup looks.
+
+*(Note: Please replace `images/popup_preview.png` with an actual screenshot of the extension popup. You can upload your screenshot to the `images` folder and update the path here.)*
+
+![Life Expectancy Calculator Popup Preview](images/popup_preview.png)
 
 ## Development Notes
 
