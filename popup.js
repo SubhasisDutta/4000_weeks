@@ -258,7 +258,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // }
 
     // Final Update of Result Div (Consolidated)
-    let line1 = `You have approximately : ${(typeof displayRemainingWeeks === 'number' ? displayRemainingWeeks.toLocaleString() : displayRemainingWeeks)} weeks (~ ${(typeof displayRemainingHours === 'number' ? displayRemainingHours.toLocaleString(undefined, {maximumFractionDigits: 0}) : displayRemainingHours)} hours) remaining.`;
+    let line1 = `You have approximately : ${(typeof displayRemainingWeeks === 'number' ? displayRemainingWeeks.toLocaleString() : displayRemainingWeeks)} weeks (~ ${(typeof displayRemainingHours === 'number' ? displayRemainingHours.toLocaleString(undefined, {maximumFractionDigits: 0}) : displayRemainingHours)} hours).`;
     let line2 = `Each hour is worth: ${typeof displayHourWorth === 'number' ? '$' + displayHourWorth.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : displayHourWorth}.`;
     let line3 = `Auto Income: ${typeof displayFinancialFreedom === 'number' ? '$' + displayFinancialFreedom.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : displayFinancialFreedom}.`;
     let line4 = `Freedom Aim : ${displayAmountNeeded}`;
