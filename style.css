@@ -1,7 +1,6 @@
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   width: 425px; /* Adjust width as needed */
-  min-height: 560px; /* Added min-height to accommodate all inputs */
   padding: 8px; /* Reduced padding */
   background-color: #f8f9fa; /* a slightly off-white, Bootstrap's light background */
   box-sizing: border-box;
