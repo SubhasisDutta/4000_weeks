@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', function () {
   // hourWorthResultDiv selector removed
   // financialFreedomResultDiv selector removed
   const errorMessagesDiv = document.getElementById('errorMessages');
+  const monthSpendingInput = document.getElementById('monthSpendingInput');
+  const monthSavingsInput = document.getElementById('monthSavingsInput');
 
   function getValidatedWeeklyHours() {
     let hours = parseInt(totalWeeklyHoursInput.value, 10);
@@ -27,6 +29,22 @@ document.addEventListener('DOMContentLoaded', function () {
       netWorth = 1000000; // Default if input is invalid
     }
     return netWorth;
+  }
+
+  function getValidatedMonthSpending() {
+    let spending = parseFloat(monthSpendingInput.value);
+    if (isNaN(spending) || spending < 0) {
+      spending = 0; // Default if input is invalid
+    }
+    return spending;
+  }
+
+  function getValidatedMonthSavings() {
+    let savings = parseFloat(monthSavingsInput.value);
+    if (isNaN(savings) || savings < 0) {
+      savings = 0; // Default if input is invalid
+    }
+    return savings;
   }
 
   // Function to toggle visibility of calculation inputs
@@ -45,7 +63,7 @@ document.addEventListener('DOMContentLoaded', function () {
   toggleInputsBtn.addEventListener('change', toggleCalculationInputs);
 
   // Load saved values
-  chrome.storage.local.get(['dob', 'lifespan', 'totalWeeklyHours', 'netWorth'], function (items) {
+  chrome.storage.local.get(['dob', 'lifespan', 'totalWeeklyHours', 'netWorth', 'monthSpending', 'monthSavings'], function (items) {
     if (items.dob) {
       dobInput.value = items.dob;
     }
@@ -62,7 +80,19 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
       netWorthInput.value = '1000000'; // Default value
     }
+    if (items.monthSpending) {
+      monthSpendingInput.value = items.monthSpending;
+    } else {
+      monthSpendingInput.value = '0'; // Default value
+    }
+    if (items.monthSavings) {
+      monthSavingsInput.value = items.monthSavings;
+    } else {
+      monthSavingsInput.value = '0'; // Default value
+    }
     // Automatically calculate if all values are present
+    // No need to check for monthSpending and monthSavings here for initial calculation trigger,
+    // as performCalculation will use their validated values (or defaults).
     if (items.dob && items.lifespan && items.netWorth) {
         performCalculation();
     } else {
@@ -95,6 +125,20 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  monthSpendingInput.addEventListener('input', () => {
+    // No need for explicit validation before saving, performCalculation will handle display
+    chrome.storage.local.set({ monthSpending: monthSpendingInput.value }, () => {
+        performCalculation();
+    });
+  });
+
+  monthSavingsInput.addEventListener('input', () => {
+    // No need for explicit validation before saving, performCalculation will handle display
+    chrome.storage.local.set({ monthSavings: monthSavingsInput.value }, () => {
+        performCalculation();
+    });
+  });
+
   // function calculateWeeklyHours() removed entirely
 
   function performCalculation() {
@@ -113,12 +157,15 @@ document.addEventListener('DOMContentLoaded', function () {
     let displayRemainingHours = "N/A";
     let displayHourWorth = "N/A";
     let displayFinancialFreedom = "N/A";
+    let displayAmountNeeded = "N/A"; // New display variable
 
     // Initial state for other divs - REMOVED as these divs are gone
     // if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = '';
     // if (weeklyHoursResultDiv) weeklyHoursResultDiv.textContent = '';
 
     const validatedNetWorth = getValidatedNetWorth(); // Get it once
+    const monthSpending = getValidatedMonthSpending();
+    const monthSavings = getValidatedMonthSavings();
 
     if (!dobString) {
       if (errorMessagesDiv) {
@@ -151,6 +198,10 @@ document.addEventListener('DOMContentLoaded', function () {
           const remainingMilliseconds = expectedDeathDate - currentDate;
           // const remainingTotalHours = remainingMilliseconds / (1000 * 60 * 60); // No longer displayed
           const actualTotalWeeklyHours = getValidatedWeeklyHours();
+
+          const expense = monthSpending - monthSavings;
+          const amountNeeded = expense > 0 ? (expense * 12 / 0.01) : 0;
+          displayAmountNeeded = '$' + amountNeeded.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
           if (remainingMilliseconds < 0) {
             if (errorMessagesDiv) {
@@ -186,12 +237,19 @@ document.addEventListener('DOMContentLoaded', function () {
           chrome.storage.local.set({
             dob: dobString,
             lifespan: lifespanYears.toString(),
-            netWorth: validatedNetWorth.toString()
+            netWorth: validatedNetWorth.toString(),
+            monthSpending: monthSpending.toString(),
+            monthSavings: monthSavings.toString()
           });
           // calculateWeeklyHours(); // Removed call
         }
       }
     }
+    // If primary calculations failed, amountNeeded should also be N/A
+    if (errorMessagesDiv && errorMessagesDiv.textContent !== '') {
+        displayAmountNeeded = "N/A";
+    }
+
 
     // Management of Other Divs (Post-error check) - REMOVED as these divs are gone
     // if (errorMessagesDiv && errorMessagesDiv.textContent !== '') {
@@ -202,8 +260,9 @@ document.addEventListener('DOMContentLoaded', function () {
     // Final Update of Result Div (Consolidated)
     let line1 = `You have approximately : ${(typeof displayRemainingWeeks === 'number' ? displayRemainingWeeks.toLocaleString() : displayRemainingWeeks)} weeks (~ ${(typeof displayRemainingHours === 'number' ? displayRemainingHours.toLocaleString(undefined, {maximumFractionDigits: 0}) : displayRemainingHours)} hours) remaining.`;
     let line2 = `Each hour is worth: ${typeof displayHourWorth === 'number' ? '$' + displayHourWorth.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : displayHourWorth}.`;
-    let line3 = `Your Financial Freedom number (monthly): ${typeof displayFinancialFreedom === 'number' ? '$' + displayFinancialFreedom.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : displayFinancialFreedom}.`;
+    let line3 = `Auto Income: ${typeof displayFinancialFreedom === 'number' ? '$' + displayFinancialFreedom.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : displayFinancialFreedom}.`;
+    let line4 = `Freedom Aim : ${displayAmountNeeded}`;
 
-    resultDiv.innerHTML = `${line1}<br>${line2}<br>${line3}`;
+    resultDiv.innerHTML = `${line1}<br>${line2}<br>${line3}<br>${line4}`;
   }
 });
