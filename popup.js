@@ -98,7 +98,10 @@ document.addEventListener('DOMContentLoaded', function () {
   // function calculateWeeklyHours() removed entirely
 
   function performCalculation() {
-    if (errorMessagesDiv) errorMessagesDiv.textContent = '';
+    if (errorMessagesDiv) {
+      errorMessagesDiv.textContent = '';
+      errorMessagesDiv.style.display = 'none'; // Hide it by default
+    }
     // resultDiv.style.color = 'black'; // color is handled by errorMessagesDiv or general result styling
 
     const dobString = dobInput.value;
@@ -118,17 +121,29 @@ document.addEventListener('DOMContentLoaded', function () {
     const validatedNetWorth = getValidatedNetWorth(); // Get it once
 
     if (!dobString) {
-      if (errorMessagesDiv) errorMessagesDiv.textContent = 'Please enter your date of birth.';
+      if (errorMessagesDiv) {
+        errorMessagesDiv.textContent = 'Please enter your date of birth.';
+        errorMessagesDiv.style.display = 'block'; // Show it
+      }
     } else if (isNaN(lifespanYears) || lifespanYears <= 0) {
-      if (errorMessagesDiv) errorMessagesDiv.textContent = 'Please enter a valid lifespan in years.';
+      if (errorMessagesDiv) {
+        errorMessagesDiv.textContent = 'Please enter a valid lifespan in years.';
+        errorMessagesDiv.style.display = 'block'; // Show it
+      }
     } else {
       const dob = new Date(dobString);
       if (isNaN(dob.getTime())) {
-        if (errorMessagesDiv) errorMessagesDiv.textContent = 'Invalid date of birth format.';
+        if (errorMessagesDiv) {
+          errorMessagesDiv.textContent = 'Invalid date of birth format.';
+          errorMessagesDiv.style.display = 'block'; // Show it
+        }
       } else {
         const currentDate = new Date();
         if (dob > currentDate) {
-          if (errorMessagesDiv) errorMessagesDiv.textContent = 'Date of birth cannot be in the future.';
+          if (errorMessagesDiv) {
+            errorMessagesDiv.textContent = 'Date of birth cannot be in the future.';
+            errorMessagesDiv.style.display = 'block'; // Show it
+          }
         } else {
           // All primary inputs are valid enough to proceed with calculations
           const expectedDeathDate = new Date(dob);
@@ -138,7 +153,10 @@ document.addEventListener('DOMContentLoaded', function () {
           const actualTotalWeeklyHours = getValidatedWeeklyHours();
 
           if (remainingMilliseconds < 0) {
-            if (errorMessagesDiv) errorMessagesDiv.textContent = 'You have lived past your expected lifespan!';
+            if (errorMessagesDiv) {
+              errorMessagesDiv.textContent = 'You have lived past your expected lifespan!';
+              errorMessagesDiv.style.display = 'block'; // Show it
+            }
             // resultDiv.style.color = 'green'; // Style error message div directly if needed
             displayRemainingWeeks = "0";
             displayRemainingHours = "0";
