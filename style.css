@@ -131,33 +131,38 @@ div#result { /* Added ID for specificity */
 /* Progress Bar Styles */
 #progress-bar-container {
   width: 100%;
-  margin-bottom: 10px; /* Space below the whole progress bar component */
-  font-size: 12px; /* Smaller font for text around/above the bar */
-  text-align: center; /* Center the "Progress: X / Y" text */
+  margin-bottom: 10px;
+  text-align: center;
+  /* font-size: 12px; /* Let children define their own size or inherit body */
 }
 
 #progress-bar-outer {
   width: 100%;
-  background-color: #d1d3d4; /* darker gray for better contrast with inner bar */
-  border-radius: 4px;
-  padding: 2px; /* A small padding to inset the inner bar slightly */
+  background-color: #e9ecef; /* Lighter gray */
+  border-radius: 6px; /* Softer radius */
+  padding: 3px; /* Increased padding */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.075); /* Subtle inner shadow */
   box-sizing: border-box;
 }
 
 #progress-bar-inner {
-  height: 22px; /* Height of the actual bar */
-  background-color: #4CAF50; /* Green for progress */
-  border-radius: 3px; /* Slightly smaller radius for inner bar */
+  height: 20px; /* Adjusted height */
+  line-height: 20px; /* Match height */
+  background-color: #007bff; /* Bootstrap primary blue */
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-size: 1rem 1rem; /* Size of the stripes */
+  color: #ffffff; /* White text */
   text-align: center;
-  line-height: 22px; /* Vertically center text in bar */
-  color: white;
-  font-weight: bold;
-  transition: width 0.3s ease-in-out; /* Smooth transition for width changes */
+  font-weight: 600; /* Semi-bold */
+  font-size: 12px; /* Explicit font size for inner text */
+  border-radius: 4px; /* Softer radius, fits within outer padding */
+  transition: width 0.4s ease; /* Slightly slower transition */
 }
 
 #progress-bar-text-details {
-  margin-bottom: 4px; /* Space between details text and the bar itself */
-  color: #212529;
+  margin-bottom: 5px; /* Increased space */
+  color: #495057; /* Softer dark gray */
+  font-size: 13px; /* Slightly larger font size */
 }
 
 /* Adding hr style changes, assuming it's at the end or creating it if not present */
