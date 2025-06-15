@@ -9,6 +9,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const weeklyHoursResultDiv = document.getElementById('weeklyHoursResult');
   const totalLifeHoursResultDiv = document.getElementById('totalLifeHoursResult');
 
+  function getValidatedWeeklyHours() {
+    let hours = parseInt(totalWeeklyHoursInput.value, 10);
+    if (isNaN(hours) || hours < 1) {
+      hours = 168; // Default if input is invalid
+    }
+    return hours;
+  }
+
   // Function to toggle visibility of calculation inputs
   function toggleCalculationInputs() {
     if (toggleInputsBtn.checked) {
@@ -65,11 +73,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function calculateWeeklyHours() {
     const now = new Date();
-    let totalConfiguredWeeklyHours = parseInt(totalWeeklyHoursInput.value, 10);
-
-    if (isNaN(totalConfiguredWeeklyHours) || totalConfiguredWeeklyHours < 1) {
-      totalConfiguredWeeklyHours = 168; // Default if input is invalid
-    }
+    const totalConfiguredWeeklyHours = getValidatedWeeklyHours();
 
     const currentDay = now.getDay(); // Sunday is 0, Monday is 1, ..., Saturday is 6
     const dayOfWeek = (currentDay === 0) ? 6 : currentDay - 1; // Monday is 0, ..., Sunday is 6
@@ -131,6 +135,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const remainingMilliseconds = expectedDeathDate - currentDate;
     const remainingTotalHours = remainingMilliseconds / (1000 * 60 * 60);
 
+    // Get validated weekly hours for calculations below
+    const actualTotalWeeklyHours = getValidatedWeeklyHours();
+
     if (remainingMilliseconds < 0) {
       resultDiv.textContent = 'You have lived past your expected lifespan!';
       resultDiv.style.color = 'green';
@@ -140,7 +147,11 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
       const weeksInMs = 1000 * 60 * 60 * 24 * 7;
       const remainingWeeks = Math.ceil(remainingMilliseconds / weeksInMs);
-      resultDiv.textContent = `You have approximately ${remainingWeeks} weeks remaining.`;
+
+      // Calculate hours based on remaining weeks and configured weekly hours
+      const hoursBasedOnWeeks = remainingWeeks * actualTotalWeeklyHours;
+
+      resultDiv.textContent = `You have approximately ${remainingWeeks} weeks (~${hoursBasedOnWeeks.toLocaleString(undefined, {maximumFractionDigits: 0})} hours based on your weekly setting) remaining.`;
       resultDiv.style.color = 'black'; // Default color
 
       if (totalLifeHoursResultDiv) {
