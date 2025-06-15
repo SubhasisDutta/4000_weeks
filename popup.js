@@ -3,6 +3,23 @@ document.addEventListener('DOMContentLoaded', function () {
   const lifespanInput = document.getElementById('lifespan');
   const calculateBtn = document.getElementById('calculateBtn');
   const resultDiv = document.getElementById('result');
+  const toggleInputsBtn = document.getElementById('toggleInputsBtn');
+  const calculationInputsDiv = document.getElementById('calculationInputsDiv');
+
+  // Function to toggle visibility of calculation inputs
+  function toggleCalculationInputs() {
+    if (toggleInputsBtn.checked) {
+      calculationInputsDiv.style.display = 'block';
+    } else {
+      calculationInputsDiv.style.display = 'none';
+    }
+  }
+
+  // Initial call to set the state based on checkbox (should be unchecked by default)
+  toggleCalculationInputs();
+
+  // Add event listener for the toggle button
+  toggleInputsBtn.addEventListener('change', toggleCalculationInputs);
 
   // Load saved values
   chrome.storage.local.get(['dob', 'lifespan'], function (items) {

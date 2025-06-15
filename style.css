@@ -60,3 +60,20 @@ button:hover {
   min-height: 20px; /* Ensure it's visible even when empty */
   color: #333;
 }
+
+/* Styling for the toggle switch container */
+.toggle-switch-container {
+  /* margin-bottom: 10px; */ /* This is already covered by the generic 'div' rule, but could be adjusted if needed */
+  display: flex; /* Aligns checkbox and label nicely on the same line */
+  align-items: center; /* Vertically aligns items in the center */
+}
+
+.toggle-switch-container input[type="checkbox"] {
+  margin-right: 5px; /* Adds some space between the checkbox and the label */
+}
+
+/*
+  Note on #calculationInputsDiv visibility:
+  The display property (block/none) for #calculationInputsDiv is controlled by popup.js.
+  When set to 'none', it will not occupy any space, as per standard browser behavior.
+*/

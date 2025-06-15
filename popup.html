@@ -6,15 +6,21 @@
 </head>
 <body>
   <h3>Life Expectancy Calculator</h3>
-  <div>
-    <label for="dob">Date of Birth:</label>
-    <input type="date" id="dob">
+  <div class="toggle-switch-container">
+    <input type="checkbox" id="toggleInputsBtn">
+    <label for="toggleInputsBtn">Show Calculation Inputs</label>
   </div>
-  <div>
-    <label for="lifespan">Expected Lifespan (years):</label>
-    <input type="number" id="lifespan" min="1" value="80">
+  <div id="calculationInputsDiv">
+    <div>
+      <label for="dob">Date of Birth:</label>
+      <input type="date" id="dob">
+    </div>
+    <div>
+      <label for="lifespan">Expected Lifespan (years):</label>
+      <input type="number" id="lifespan" min="1" value="80">
+    </div>
+    <button id="calculateBtn">Calculate</button>
   </div>
-  <button id="calculateBtn">Calculate</button>
   <div id="result"></div>
 
   <script src="popup.js"></script>
