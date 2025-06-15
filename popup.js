@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const calculationInputsDiv = document.getElementById('calculationInputsDiv');
   const totalWeeklyHoursInput = document.getElementById('totalWeeklyHours');
   const weeklyHoursResultDiv = document.getElementById('weeklyHoursResult');
+  const totalLifeHoursResultDiv = document.getElementById('totalLifeHoursResult');
 
   // Function to toggle visibility of calculation inputs
   function toggleCalculationInputs() {
@@ -90,15 +91,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const dobString = dobInput.value;
     const lifespanYears = parseInt(lifespanInput.value, 10);
 
+    // Clear previous results for total life hours
+    if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = '';
+
     if (!dobString) {
       resultDiv.textContent = 'Please enter your date of birth.';
       resultDiv.style.color = 'red';
+      if (weeklyHoursResultDiv) weeklyHoursResultDiv.textContent = ''; // Also clear weekly
       return;
     }
 
     if (isNaN(lifespanYears) || lifespanYears <= 0) {
       resultDiv.textContent = 'Please enter a valid lifespan in years.';
       resultDiv.style.color = 'red';
+      if (weeklyHoursResultDiv) weeklyHoursResultDiv.textContent = ''; // Also clear weekly
       return;
     }
 
@@ -106,6 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (isNaN(dob.getTime())) {
         resultDiv.textContent = 'Invalid date of birth format.';
         resultDiv.style.color = 'red';
+        if (weeklyHoursResultDiv) weeklyHoursResultDiv.textContent = ''; // Also clear weekly
         return;
     }
 
@@ -114,6 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (dob > currentDate) {
         resultDiv.textContent = 'Date of birth cannot be in the future.';
         resultDiv.style.color = 'red';
+        if (weeklyHoursResultDiv) weeklyHoursResultDiv.textContent = ''; // Also clear weekly
         return;
     }
 
@@ -121,15 +129,24 @@ document.addEventListener('DOMContentLoaded', function () {
     expectedDeathDate.setFullYear(dob.getFullYear() + lifespanYears);
 
     const remainingMilliseconds = expectedDeathDate - currentDate;
+    const remainingTotalHours = remainingMilliseconds / (1000 * 60 * 60);
 
     if (remainingMilliseconds < 0) {
       resultDiv.textContent = 'You have lived past your expected lifespan!';
       resultDiv.style.color = 'green';
+      // totalLifeHoursResultDiv is already cleared or we can set a specific message here if desired
+      // For now, sticking to clearing it as per plan.
+      if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = '';
     } else {
       const weeksInMs = 1000 * 60 * 60 * 24 * 7;
       const remainingWeeks = Math.ceil(remainingMilliseconds / weeksInMs);
       resultDiv.textContent = `You have approximately ${remainingWeeks} weeks remaining.`;
       resultDiv.style.color = 'black'; // Default color
+
+      if (totalLifeHoursResultDiv) {
+        totalLifeHoursResultDiv.textContent = `Approximately ${remainingTotalHours.toLocaleString(undefined, {maximumFractionDigits: 0})} total hours remaining.`;
+        totalLifeHoursResultDiv.style.color = 'black';
+      }
     }
 
     // Save current valid inputs for DOB and Lifespan
