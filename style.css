@@ -1,13 +1,16 @@
 body {
-  font-family: sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   width: 425px; /* Adjust width as needed */
+  min-height: 560px; /* Added min-height to accommodate all inputs */
   padding: 8px; /* Reduced padding */
-  background-color: #f0f8ff; /* AliceBlue */
+  background-color: #f8f9fa; /* a slightly off-white, Bootstrap's light background */
+  box-sizing: border-box;
+  color: #212529; /* a common darker gray for text, Bootstrap's default body color */
 }
 
 h3 {
   text-align: center;
-  color: #333;
+  color: #004085; /* a darker blue for better contrast on light backgrounds */
   margin-top: 0;
   margin-bottom: 12px; /* Reduced margin */
 }
@@ -20,16 +23,18 @@ label {
   display: block;
   margin-bottom: 5px;
   font-size: 14px;
-  color: #555;
+  color: #495057; /* a darker gray for labels */
 }
 
 input[type="date"],
 input[type="number"] {
   width: calc(100% - 12px); /* Account for padding */
   padding: 5px;
-  border: 1px solid #ccc;
+  border: 1px solid #ced4da; /* standard darker border */
   border-radius: 4px;
   box-sizing: border-box; /* Important for width calculation */
+  background-color: #fff; /* ensure it's white */
+  color: #495057; /* input text color */
 }
 
 button {
@@ -52,10 +57,11 @@ button:hover {
 }
 
 div#calculationInputsDiv { /* Added ID for specificity */
-  background-color: #faf0e6; /* Linen */
+  background-color: #ffffff;
   padding: 10px;
   border-radius: 5px;
   margin-top: 5px;
+  border: 1px solid #dee2e6; /* slightly darker border */
   /* margin-bottom will still be 8px due to generic div rule */
 }
 
@@ -73,13 +79,13 @@ div#errorMessages { /* Added ID for specificity, adjusted from inline */
 div#result { /* Added ID for specificity */
   margin-top: 15px; /* This provides good separation, can keep or adjust */
   padding: 8px; /* Reduced padding */
-  background-color: #e6f7e6; /* Honeydew equivalent */
-  border: 1px solid #cce8cc; /* Slightly darker green border */
+  background-color: #e6f7ff; /* adjust if needed, was #e9f5ff */
+  border: 1px solid #004085; /* matches h3 color for consistency */
   border-radius: 4px;
   text-align: center;
   font-size: 16px;
   min-height: 20px; /* Ensure it's visible even when empty */
-  color: #333;
+  color: #004085; /* text color within result to match border/theme */
 }
 
 #hourWorthResult,
@@ -99,6 +105,16 @@ div#result { /* Added ID for specificity */
 
 .toggle-switch-container input[type="checkbox"] {
   margin-right: 5px; /* Adds some space between the checkbox and the label */
+}
+
+/* This rule was missing, but implied by the prompt's request to change .toggle-switch-container label color */
+.toggle-switch-container label {
+  color: #212529; /* Ensure toggle label color is updated */
+  /* Retain other properties if they existed, e.g., font-weight, margin-top */
+  /* Assuming this label is similar to other labels, but the prompt only specified color */
+  margin-left: 5px; /* from original prompt's CSS */
+  font-weight: normal; /* from original prompt's CSS */
+  margin-top: 0; /* from original prompt's CSS */
 }
 
 /*
@@ -123,7 +139,7 @@ div#result { /* Added ID for specificity */
 
 #progress-bar-outer {
   width: 100%;
-  background-color: #e0e0e0; /* Light grey for the track */
+  background-color: #d1d3d4; /* darker gray for better contrast with inner bar */
   border-radius: 4px;
   padding: 2px; /* A small padding to inset the inner bar slightly */
   box-sizing: border-box;
@@ -142,4 +158,13 @@ div#result { /* Added ID for specificity */
 
 #progress-bar-text-details {
   margin-bottom: 4px; /* Space between details text and the bar itself */
+  color: #212529;
+}
+
+/* Adding hr style changes, assuming it's at the end or creating it if not present */
+hr {
+  border: none;
+  border-top: 1px solid #dee2e6;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
