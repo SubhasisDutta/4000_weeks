@@ -8,6 +8,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const totalWeeklyHoursInput = document.getElementById('totalWeeklyHours');
   const weeklyHoursResultDiv = document.getElementById('weeklyHoursResult');
   const totalLifeHoursResultDiv = document.getElementById('totalLifeHoursResult');
+  const netWorthInput = document.getElementById('netWorth');
+  const hourWorthResultDiv = document.getElementById('hourWorthResult');
+  const financialFreedomResultDiv = document.getElementById('financialFreedomResult');
 
   function getValidatedWeeklyHours() {
     let hours = parseInt(totalWeeklyHoursInput.value, 10);
@@ -15,6 +18,14 @@ document.addEventListener('DOMContentLoaded', function () {
       hours = 168; // Default if input is invalid
     }
     return hours;
+  }
+
+  function getValidatedNetWorth() {
+    let netWorth = parseFloat(netWorthInput.value);
+    if (isNaN(netWorth) || netWorth < 0) {
+      netWorth = 1000000; // Default if input is invalid
+    }
+    return netWorth;
   }
 
   // Function to toggle visibility of calculation inputs
@@ -33,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
   toggleInputsBtn.addEventListener('change', toggleCalculationInputs);
 
   // Load saved values
-  chrome.storage.local.get(['dob', 'lifespan', 'totalWeeklyHours'], function (items) {
+  chrome.storage.local.get(['dob', 'lifespan', 'totalWeeklyHours', 'netWorth'], function (items) {
     if (items.dob) {
       dobInput.value = items.dob;
     }
@@ -45,11 +56,19 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
       totalWeeklyHoursInput.value = '168'; // Default value
     }
+    if (items.netWorth) {
+      netWorthInput.value = items.netWorth;
+    } else {
+      netWorthInput.value = '1000000'; // Default value
+    }
     // Automatically calculate if all values are present
-    if (items.dob && items.lifespan) { // totalWeeklyHours will have a default
+    if (items.dob && items.lifespan && items.netWorth) {
         performCalculation();
     } else { // If not all main calc inputs are there, still try to calc weekly hours
         calculateWeeklyHours();
+        // also clear financial results if not all inputs are present
+        if (hourWorthResultDiv) hourWorthResultDiv.textContent = '';
+        if (financialFreedomResultDiv) financialFreedomResultDiv.textContent = '';
     }
   });
 
@@ -67,6 +86,18 @@ document.addEventListener('DOMContentLoaded', function () {
         // If other fields are also valid, update the main calculation
         if (dobInput.value && lifespanInput.value) {
             performCalculation();
+        }
+    });
+  });
+  netWorthInput.addEventListener('input', () => {
+    const value = netWorthInput.value;
+    chrome.storage.local.set({ netWorth: value }, () => {
+        // If other fields are also valid, update the main calculation
+        if (dobInput.value && lifespanInput.value) {
+            performCalculation();
+        } else { // If main fields not valid, clear financial results
+            if (hourWorthResultDiv) hourWorthResultDiv.textContent = '';
+            if (financialFreedomResultDiv) financialFreedomResultDiv.textContent = '';
         }
     });
   });
@@ -97,6 +128,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Clear previous results for total life hours
     if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = '';
+    if (hourWorthResultDiv) hourWorthResultDiv.textContent = '';
+    if (financialFreedomResultDiv) financialFreedomResultDiv.textContent = '';
+
 
     if (!dobString) {
       resultDiv.textContent = 'Please enter your date of birth.';
@@ -129,6 +163,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
     }
 
+    const netWorth = getValidatedNetWorth();
     const expectedDeathDate = new Date(dob);
     expectedDeathDate.setFullYear(dob.getFullYear() + lifespanYears);
 
@@ -144,6 +179,8 @@ document.addEventListener('DOMContentLoaded', function () {
       // totalLifeHoursResultDiv is already cleared or we can set a specific message here if desired
       // For now, sticking to clearing it as per plan.
       if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = '';
+      if (hourWorthResultDiv) hourWorthResultDiv.textContent = '';
+      if (financialFreedomResultDiv) financialFreedomResultDiv.textContent = '';
     } else {
       const weeksInMs = 1000 * 60 * 60 * 24 * 7;
       const remainingWeeks = Math.ceil(remainingMilliseconds / weeksInMs);
@@ -151,20 +188,33 @@ document.addEventListener('DOMContentLoaded', function () {
       // Calculate hours based on remaining weeks and configured weekly hours
       const hoursBasedOnWeeks = remainingWeeks * actualTotalWeeklyHours;
 
-      resultDiv.textContent = `You have approximately ${remainingWeeks} weeks (~${hoursBasedOnWeeks.toLocaleString(undefined, {maximumFractionDigits: 0})} hours based on your weekly setting) remaining.`;
+      resultDiv.textContent = `You have approximately : ${remainingWeeks} weeks (~${hoursBasedOnWeeks.toLocaleString(undefined, {maximumFractionDigits: 0})} hours) remaining.`;
       resultDiv.style.color = 'black'; // Default color
 
       if (totalLifeHoursResultDiv) {
         totalLifeHoursResultDiv.textContent = `Approximately ${remainingTotalHours.toLocaleString(undefined, {maximumFractionDigits: 0})} total hours remaining.`;
         totalLifeHoursResultDiv.style.color = 'black';
       }
+
+      if (dobString && lifespanYears > 0 && remainingMilliseconds >= 0) {
+        const hourWorth = netWorth / hoursBasedOnWeeks;
+        const financialFreedomNumber = (netWorth * 0.01) / 12;
+
+        if (hourWorthResultDiv) {
+          hourWorthResultDiv.textContent = `Each hour is worth: $${hourWorth.toLocaleString(undefined, {maximumFractionDigits: 2})}`;
+        }
+        if (financialFreedomResultDiv) {
+          financialFreedomResultDiv.textContent = `Your Financial Freedom number (monthly): $${financialFreedomNumber.toLocaleString(undefined, {maximumFractionDigits: 2})}`;
+        }
+      }
     }
 
-    // Save current valid inputs for DOB and Lifespan
+    // Save current valid inputs for DOB, Lifespan, and Net Worth
     // totalWeeklyHours is saved in its own event listener
     chrome.storage.local.set({
       dob: dobString,
-      lifespan: lifespanYears.toString()
+      lifespan: lifespanYears.toString(),
+      netWorth: netWorth.toString()
     });
 
     // Calculate and display weekly hours

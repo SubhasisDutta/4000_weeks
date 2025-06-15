@@ -61,6 +61,14 @@ button:hover {
   color: #333;
 }
 
+#hourWorthResult,
+#financialFreedomResult {
+  margin-top: 8px; /* Add some space above these new results */
+  font-size: 15px; /* Slightly smaller or same as main result, adjust as needed */
+  /* text-align is inherited from #result */
+  /* color is inherited from #result */
+}
+
 /* Styling for the toggle switch container */
 .toggle-switch-container {
   /* margin-bottom: 10px; */ /* This is already covered by the generic 'div' rule, but could be adjusted if needed */
