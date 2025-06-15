@@ -19,9 +19,15 @@
       <label for="lifespan">Expected Lifespan (years):</label>
       <input type="number" id="lifespan" min="1" value="80">
     </div>
+    <div>
+      <label for="totalWeeklyHours">Total weekly hours:</label>
+      <input type="number" id="totalWeeklyHours" min="1" value="168">
+    </div>
     <button id="calculateBtn">Calculate</button>
   </div>
-  <div id="result"></div>
+  <div id="result">
+    <div id="weeklyHoursResult"></div>
+  </div>
 
   <script src="popup.js"></script>
 </body>
