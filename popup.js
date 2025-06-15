@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const errorMessagesDiv = document.getElementById('errorMessages');
   const monthSpendingInput = document.getElementById('monthSpendingInput');
   const monthSavingsInput = document.getElementById('monthSavingsInput');
+  const annualReturnRateInput = document.getElementById('annualReturnRate');
 
   function getValidatedWeeklyHours() {
     let hours = parseInt(totalWeeklyHoursInput.value, 10);
@@ -47,6 +48,14 @@ document.addEventListener('DOMContentLoaded', function () {
     return savings;
   }
 
+  function getValidatedAnnualReturnRate() {
+    let rate = parseFloat(annualReturnRateInput.value);
+    if (isNaN(rate) || rate < 0) {
+      rate = 1; // Default if input is invalid or negative
+    }
+    return rate / 100; // Convert percentage to decimal for calculations
+  }
+
   // Function to toggle visibility of calculation inputs
   function toggleCalculationInputs() {
     if (toggleInputsBtn.checked) {
@@ -63,7 +72,7 @@ document.addEventListener('DOMContentLoaded', function () {
   toggleInputsBtn.addEventListener('change', toggleCalculationInputs);
 
   // Load saved values
-  chrome.storage.local.get(['dob', 'lifespan', 'totalWeeklyHours', 'netWorth', 'monthSpending', 'monthSavings'], function (items) {
+  chrome.storage.local.get(['dob', 'lifespan', 'totalWeeklyHours', 'netWorth', 'annualReturnRate', 'monthSpending', 'monthSavings'], function (items) {
     if (items.dob) {
       dobInput.value = items.dob;
     }
@@ -80,6 +89,11 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
       netWorthInput.value = '1000000'; // Default value
     }
+    if (items.annualReturnRate) {
+      annualReturnRateInput.value = items.annualReturnRate;
+    } else {
+      annualReturnRateInput.value = '1'; // Default value
+    }
     if (items.monthSpending) {
       monthSpendingInput.value = items.monthSpending;
     } else {
@@ -93,22 +107,24 @@ document.addEventListener('DOMContentLoaded', function () {
     // Automatically calculate if all values are present
     // No need to check for monthSpending and monthSavings here for initial calculation trigger,
     // as performCalculation will use their validated values (or defaults).
-    if (items.dob && items.lifespan && items.netWorth) {
+    if (items.dob && items.lifespan && items.netWorth) { // Keep this check simple, performCalculation handles detailed logic
         performCalculation();
     } else {
-        // If not all main calc inputs are there, we still want to update display with N/A
+        // If not all main calc inputs are there, we still want to update display with N/A or defaults
         performCalculation();
     }
   });
 
   // calculateBtn.addEventListener('click', performCalculation); // Removed
   dobInput.addEventListener('change', () => {
-      // No need to check lifespanInput.value, performCalculation handles it
-      performCalculation();
+      chrome.storage.local.set({ dob: dobInput.value }, () => {
+          performCalculation();
+      });
   });
   lifespanInput.addEventListener('input', () => {
-      // No need to check dobInput.value, performCalculation handles it
-      performCalculation();
+      chrome.storage.local.set({ lifespan: lifespanInput.value }, () => {
+          performCalculation();
+      });
   });
   totalWeeklyHoursInput.addEventListener('input', () => {
     const value = totalWeeklyHoursInput.value;
@@ -135,6 +151,12 @@ document.addEventListener('DOMContentLoaded', function () {
   monthSavingsInput.addEventListener('input', () => {
     // No need for explicit validation before saving, performCalculation will handle display
     chrome.storage.local.set({ monthSavings: monthSavingsInput.value }, () => {
+        performCalculation();
+    });
+  });
+
+  annualReturnRateInput.addEventListener('input', () => {
+    chrome.storage.local.set({ annualReturnRate: annualReturnRateInput.value }, () => {
         performCalculation();
     });
   });
@@ -173,6 +195,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // if (weeklyHoursResultDiv) weeklyHoursResultDiv.textContent = '';
 
     const validatedNetWorth = getValidatedNetWorth(); // Get it once
+    const validatedAnnualReturnRate = getValidatedAnnualReturnRate();
     const monthSpending = getValidatedMonthSpending();
     const monthSavings = getValidatedMonthSavings();
     const expense = monthSpending - monthSavings; // Calculate expense here
@@ -215,28 +238,58 @@ document.addEventListener('DOMContentLoaded', function () {
 
           // Expense and AmountNeeded are calculated regardless of remainingMilliseconds (as long as DOB/Lifespan valid)
           displayExpense = `<b>$${expense.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
-          // amountNeeded must be retrieved for progress bar, so declare it here.
-          // The bolding for displayAmountNeeded will happen, but we need the raw number too.
-          const rawAmountNeeded = expense > 0 ? (expense * 12 / 0.01) : 0;
-          displayAmountNeeded = `<b>$${rawAmountNeeded.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
+
+          let rawAmountNeeded;
+          let amountNeededText = "N/A"; // Default text for display
+
+          if (validatedAnnualReturnRate > 0 && expense > 0) {
+              rawAmountNeeded = (expense * 12) / validatedAnnualReturnRate;
+              amountNeededText = `<b>$${rawAmountNeeded.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
+          } else if (expense > 0 && validatedAnnualReturnRate <= 0) {
+              rawAmountNeeded = Infinity; // Mark as infinitely large
+              amountNeededText = "<b>N/A (Return rate must be > 0%)</b>";
+          } else { // expense <= 0
+              rawAmountNeeded = 0; // No expenses to cover
+              amountNeededText = `<b>$0.00</b>`;
+          }
+          displayAmountNeeded = amountNeededText;
 
           // Progress Bar Calculation
           let netWorthDisplay = validatedNetWorth.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-          let amountNeededDisplay = rawAmountNeeded.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
           let progressPercentage = 0;
-          if (rawAmountNeeded > 0) { // Use rawAmountNeeded for calculation
-              progressPercentage = (validatedNetWorth / rawAmountNeeded) * 100;
-          }
-          progressPercentage = Math.min(progressPercentage, 100); // Cap at 100%
-          progressPercentage = Math.max(progressPercentage, 0);   // Ensure at least 0%
+          let amountNeededDisplayForBar;
 
-          // Construct Progress Bar HTML (this version uses rawAmountNeeded to decide structure)
-          if (rawAmountNeeded > 0) { // Check if Freedom Aim is meaningfully calculable for progress
+          if (rawAmountNeeded === Infinity) {
+              amountNeededDisplayForBar = "Aim: N/A (Return > 0%)";
+              progressPercentage = 0;
+          } else if (rawAmountNeeded > 0) {
+              amountNeededDisplayForBar = `Aim: $${rawAmountNeeded.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+              progressPercentage = (validatedNetWorth / rawAmountNeeded) * 100;
+          } else { // rawAmountNeeded is 0 (or less)
+              amountNeededDisplayForBar = "Aim: $0.00";
+              progressPercentage = validatedNetWorth > 0 ? 100 : 0;
+          }
+          progressPercentage = Math.min(progressPercentage, 100);
+          progressPercentage = Math.max(progressPercentage, 0);
+
+          // Construct Progress Bar HTML
+          if (rawAmountNeeded === Infinity) {
               displayProgressBar = `
                 <div id="progress-bar-container">
                   <div id="progress-bar-text-details">
-                    Progress: <b>$${netWorthDisplay}</b> / <b>$${amountNeededDisplay}</b>
+                    Progress: <b>$${netWorthDisplay}</b> / ${amountNeededDisplayForBar}
+                  </div>
+                  <div id="progress-bar-outer">
+                    <div id="progress-bar-inner" style="width: 0%;">
+                      <b>0%</b>
+                    </div>
+                  </div>
+                </div>`;
+          } else if (rawAmountNeeded > 0) {
+              displayProgressBar = `
+                <div id="progress-bar-container">
+                  <div id="progress-bar-text-details">
+                    Progress: <b>$${netWorthDisplay}</b> / ${amountNeededDisplayForBar.replace("Aim: ", "")}
                   </div>
                   <div id="progress-bar-outer">
                     <div id="progress-bar-inner" style="width: ${progressPercentage.toFixed(2)}%;">
@@ -244,15 +297,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     </div>
                   </div>
                 </div>`;
-          } else {
+          } else { // rawAmountNeeded is 0 (or less)
               displayProgressBar = `
                 <div id="progress-bar-container">
                   <div id="progress-bar-text-details">
-                    Current Net Worth: <b>$${netWorthDisplay}</b> (Freedom Aim not calculated or is $0)
+                    Current Net Worth: <b>$${netWorthDisplay}</b> (${amountNeededDisplayForBar})
                   </div>
                   <div id="progress-bar-outer">
-                    <div id="progress-bar-inner" style="width: 0%;">
-                      <b>0%</b>
+                    <div id="progress-bar-inner" style="width: ${progressPercentage.toFixed(2)}%;">
+                      <b>${progressPercentage.toFixed(2)}%</b>
                     </div>
                   </div>
                 </div>`;
@@ -266,7 +319,7 @@ document.addEventListener('DOMContentLoaded', function () {
             displayRemainingWeeks = "<b>0</b>";
             displayRemainingHours = "<b>0</b>";
             displayHourWorth = "N/A"; // Still N/A as there are no remaining hours to calculate worth against
-            displayFinancialFreedom = `<b>$${(validatedNetWorth * 0.01 / 12).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
+            displayFinancialFreedom = `<b>$${(validatedNetWorth * validatedAnnualReturnRate / 12).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
             // displayExpense and displayAmountNeeded already calculated and bolded above
           } else {
             const weeksInMs = 1000 * 60 * 60 * 24 * 7;
@@ -281,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
               displayHourWorth = "N/A"; // Keep as N/A if no hours left or invalid
             }
-            displayFinancialFreedom = `<b>$${(validatedNetWorth * 0.01 / 12).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
+            displayFinancialFreedom = `<b>$${(validatedNetWorth * validatedAnnualReturnRate / 12).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
             // displayExpense and displayAmountNeeded already calculated and bolded above
 
             // if (totalLifeHoursResultDiv) { // Removed
