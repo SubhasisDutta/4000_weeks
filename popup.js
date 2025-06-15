@@ -142,6 +142,11 @@ document.addEventListener('DOMContentLoaded', function () {
   // function calculateWeeklyHours() removed entirely
 
   function performCalculation() {
+    const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const monthsOfYear = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const currentDate = new Date(); // Moved to top
+    let displayTodaysDate = `${monthsOfYear[currentDate.getMonth()]} ${currentDate.getDate()}, ${currentDate.getFullYear()} (${daysOfWeek[currentDate.getDay()]})`; // Calculated immediately
+
     if (errorMessagesDiv) {
       errorMessagesDiv.textContent = '';
       errorMessagesDiv.style.display = 'none'; // Hide it by default
@@ -152,13 +157,15 @@ document.addEventListener('DOMContentLoaded', function () {
     const lifespanYears = parseInt(lifespanInput.value, 10);
     // validatedNetWorth and actualTotalWeeklyHours will be retrieved later, only when needed.
 
-    // 1. Initialization
+    // 1. Initialization of input-dependent variables
     let displayRemainingWeeks = "N/A";
     let displayRemainingHours = "N/A";
     let displayHourWorth = "N/A";
     let displayFinancialFreedom = "N/A";
     let displayAmountNeeded = "N/A";
-    let displayExpense = "N/A"; // New display variable for expense
+    let displayExpense = "N/A";
+    let displayExpectedDayOfPassing = "N/A";
+    // displayTodaysDate is already set
 
     // Initial state for other divs - REMOVED as these divs are gone
     // if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = '';
@@ -187,16 +194,20 @@ document.addEventListener('DOMContentLoaded', function () {
           errorMessagesDiv.style.display = 'block'; // Show it
         }
       } else {
-        const currentDate = new Date();
-        if (dob > currentDate) {
+        // currentDate is already defined at the top of performCalculation
+        if (dob > currentDate) { // currentDate here refers to the one from the top
           if (errorMessagesDiv) {
             errorMessagesDiv.textContent = 'Date of birth cannot be in the future.';
             errorMessagesDiv.style.display = 'block'; // Show it
           }
         } else {
           // All primary inputs are valid enough to proceed with calculations
+          // displayTodaysDate is already set using currentDate from the top
           const expectedDeathDate = new Date(dob);
           expectedDeathDate.setFullYear(dob.getFullYear() + lifespanYears);
+          // Format Expected Day of Passing here
+          displayExpectedDayOfPassing = `${monthsOfYear[expectedDeathDate.getMonth()]} ${expectedDeathDate.getDate()}, ${expectedDeathDate.getFullYear()}`;
+
           const remainingMilliseconds = expectedDeathDate - currentDate;
           // const remainingTotalHours = remainingMilliseconds / (1000 * 60 * 60); // No longer displayed
           const actualTotalWeeklyHours = getValidatedWeeklyHours();
@@ -249,9 +260,12 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     }
     // If primary calculations failed, amountNeeded and expense should also be N/A
+    // If primary calculations failed, many displays revert to "N/A"
     if (errorMessagesDiv && errorMessagesDiv.textContent !== '') {
         displayAmountNeeded = "N/A";
         displayExpense = "N/A";
+        displayExpectedDayOfPassing = "N/A"; // Ensure this is N/A on error
+        // displayTodaysDate is set unconditionally at the start, so it will always show current date.
         // Other specific displays like weeks, hours, hourworth, financialfreedom are set to "N/A"
         // by default or specifically in error conditions.
     }
@@ -264,13 +278,15 @@ document.addEventListener('DOMContentLoaded', function () {
     // }
 
     // Final Update of Result Div (Consolidated)
-    // Variables are now strings, some containing HTML (<b> tags), or "N/A"
     let line1 = `You have REMAINING : ${displayRemainingWeeks} weeks (~ ${displayRemainingHours} hours).`;
     let line2 = `Each hour is worth: ${displayHourWorth}.`;
     let line3 = `Auto Income: ${displayFinancialFreedom}.`;
     let line4 = `Monthly Expense: ${displayExpense}.`;
     let line5 = `Freedom Aim : ${displayAmountNeeded}`;
+    let line6 = "<hr>";
+    let line7 = `Today's Date: ${displayTodaysDate}`;
+    let line8 = `Expected Day of Passing: ${displayExpectedDayOfPassing}`;
 
-    resultDiv.innerHTML = `${line1}<br>${line2}<br>${line3}<br>${line4}<br>${line5}`;
+    resultDiv.innerHTML = `${line1}<br>${line2}<br>${line3}<br>${line4}<br>${line5}${line6}${line7}<br>${line8}`;
   }
 });
