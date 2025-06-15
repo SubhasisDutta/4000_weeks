@@ -112,3 +112,34 @@ div#result { /* Added ID for specificity */
    If any specific text within these new backgrounds needs adjustment,
    it would be handled here (e.g., #calculationInputsDiv label {}).
    For now, existing label and text colors are assumed sufficient. */
+
+/* Progress Bar Styles */
+#progress-bar-container {
+  width: 100%;
+  margin-bottom: 10px; /* Space below the whole progress bar component */
+  font-size: 12px; /* Smaller font for text around/above the bar */
+  text-align: center; /* Center the "Progress: X / Y" text */
+}
+
+#progress-bar-outer {
+  width: 100%;
+  background-color: #e0e0e0; /* Light grey for the track */
+  border-radius: 4px;
+  padding: 2px; /* A small padding to inset the inner bar slightly */
+  box-sizing: border-box;
+}
+
+#progress-bar-inner {
+  height: 22px; /* Height of the actual bar */
+  background-color: #4CAF50; /* Green for progress */
+  border-radius: 3px; /* Slightly smaller radius for inner bar */
+  text-align: center;
+  line-height: 22px; /* Vertically center text in bar */
+  color: white;
+  font-weight: bold;
+  transition: width 0.3s ease-in-out; /* Smooth transition for width changes */
+}
+
+#progress-bar-text-details {
+  margin-bottom: 4px; /* Space between details text and the bar itself */
+}

@@ -166,6 +166,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let displayExpense = "N/A";
     let displayExpectedDayOfPassing = "N/A";
     // displayTodaysDate is already set
+    let displayProgressBar = ""; // Initialize progress bar display
 
     // Initial state for other divs - REMOVED as these divs are gone
     // if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = '';
@@ -214,8 +215,48 @@ document.addEventListener('DOMContentLoaded', function () {
 
           // Expense and AmountNeeded are calculated regardless of remainingMilliseconds (as long as DOB/Lifespan valid)
           displayExpense = `<b>$${expense.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
-          const amountNeeded = expense > 0 ? (expense * 12 / 0.01) : 0;
-          displayAmountNeeded = `<b>$${amountNeeded.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
+          // amountNeeded must be retrieved for progress bar, so declare it here.
+          // The bolding for displayAmountNeeded will happen, but we need the raw number too.
+          const rawAmountNeeded = expense > 0 ? (expense * 12 / 0.01) : 0;
+          displayAmountNeeded = `<b>$${rawAmountNeeded.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</b>`;
+
+          // Progress Bar Calculation
+          let netWorthDisplay = validatedNetWorth.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+          let amountNeededDisplay = rawAmountNeeded.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+          let progressPercentage = 0;
+          if (rawAmountNeeded > 0) { // Use rawAmountNeeded for calculation
+              progressPercentage = (validatedNetWorth / rawAmountNeeded) * 100;
+          }
+          progressPercentage = Math.min(progressPercentage, 100); // Cap at 100%
+          progressPercentage = Math.max(progressPercentage, 0);   // Ensure at least 0%
+
+          // Construct Progress Bar HTML (this version uses rawAmountNeeded to decide structure)
+          if (rawAmountNeeded > 0) { // Check if Freedom Aim is meaningfully calculable for progress
+              displayProgressBar = `
+                <div id="progress-bar-container">
+                  <div id="progress-bar-text-details">
+                    Progress: <b>$${netWorthDisplay}</b> / <b>$${amountNeededDisplay}</b>
+                  </div>
+                  <div id="progress-bar-outer">
+                    <div id="progress-bar-inner" style="width: ${progressPercentage.toFixed(2)}%;">
+                      <b>${progressPercentage.toFixed(2)}%</b>
+                    </div>
+                  </div>
+                </div>`;
+          } else {
+              displayProgressBar = `
+                <div id="progress-bar-container">
+                  <div id="progress-bar-text-details">
+                    Current Net Worth: <b>$${netWorthDisplay}</b> (Freedom Aim not calculated or is $0)
+                  </div>
+                  <div id="progress-bar-outer">
+                    <div id="progress-bar-inner" style="width: 0%;">
+                      <b>0%</b>
+                    </div>
+                  </div>
+                </div>`;
+          }
 
           if (remainingMilliseconds < 0) {
             if (errorMessagesDiv) {
@@ -261,11 +302,26 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     // If primary calculations failed, amountNeeded and expense should also be N/A
     // If primary calculations failed, many displays revert to "N/A"
+    // Also, if primary calculations failed, the progress bar should reflect this.
     if (errorMessagesDiv && errorMessagesDiv.textContent !== '') {
         displayAmountNeeded = "N/A";
         displayExpense = "N/A";
         displayExpectedDayOfPassing = "N/A"; // Ensure this is N/A on error
         // displayTodaysDate is set unconditionally at the start, so it will always show current date.
+
+        // Fallback for progress bar if core calculations failed
+        let netWorthDisplayOnError = validatedNetWorth.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        displayProgressBar = `
+          <div id="progress-bar-container">
+            <div id="progress-bar-text-details">
+              Current Net Worth: <b>$${netWorthDisplayOnError}</b> (Calculation error occurred)
+            </div>
+            <div id="progress-bar-outer">
+              <div id="progress-bar-inner" style="width: 0%;">
+                <b>0%</b>
+              </div>
+            </div>
+          </div>`;
         // Other specific displays like weeks, hours, hourworth, financialfreedom are set to "N/A"
         // by default or specifically in error conditions.
     }
@@ -283,10 +339,13 @@ document.addEventListener('DOMContentLoaded', function () {
     let line3 = `Auto Income: ${displayFinancialFreedom}.`;
     let line4 = `Monthly Expense: ${displayExpense}.`;
     let line5 = `Freedom Aim : ${displayAmountNeeded}`;
+    // Progress bar (displayProgressBar) is a full HTML block, so no <br> needed after line5 if progress bar is present.
+    // However, to ensure spacing if it were empty, but it always generates a div.
+    // Add <br> before displayProgressBar for spacing from line5.
     let line6 = "<hr>";
     let line7 = `Today's Date: ${displayTodaysDate}`;
     let line8 = `Expected Day of Passing: ${displayExpectedDayOfPassing}`;
 
-    resultDiv.innerHTML = `${line1}<br>${line2}<br>${line3}<br>${line4}<br>${line5}${line6}${line7}<br>${line8}`;
+    resultDiv.innerHTML = `${line1}<br>${line2}<br>${line3}<br>${line4}<br>${line5}<br>${displayProgressBar}${line6}${line7}<br>${line8}`;
   }
 });
