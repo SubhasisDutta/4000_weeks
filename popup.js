@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
+  M.AutoInit(); // Initialize Materialize components
+
   const dobInput = document.getElementById('dob');
   const lifespanInput = document.getElementById('lifespan');
   // calculateBtn selector removed

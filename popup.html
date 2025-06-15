@@ -2,47 +2,70 @@
 <html>
 <head>
   <title>Life Expectancy Calculator</title>
+  <!-- Materialize CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-  <h3>Life Expectancy Calculator</h3>
-  <div class="toggle-switch-container">
-    <input type="checkbox" id="toggleInputsBtn">
-    <label for="toggleInputsBtn">Show Calculation Inputs</label>
+<div class="container"> <!-- Added container div -->
+  <h5 class="center-align teal-text text-darken-2">Life Expectancy Calculator</h5>
+  <div class="switch section"> <!-- Materialize Switch -->
+    <label>
+      Hide Calculation Inputs
+      <input type="checkbox" id="toggleInputsBtn">
+      <span class="lever"></span>
+      Show Calculation Inputs
+    </label>
   </div>
-  <div id="calculationInputsDiv">
-    <div>
-      <label for="dob">Date of Birth:</label>
-      <input type="date" id="dob">
+  <div id="calculationInputsDiv" class="card-panel teal lighten-5"> <!-- Added Materialize class -->
+    <div class="row">
+      <div class="input-field col s12">
+        <input id="dob" type="date" class="validate">
+        <label for="dob">Date of Birth:</label>
+      </div>
     </div>
-    <div>
-      <label for="lifespan">Expected Lifespan (years):</label>
-      <input type="number" id="lifespan" min="1" value="80">
+    <div class="row">
+      <div class="input-field col s12">
+        <input id="lifespan" type="number" class="validate" min="1" value="80">
+        <label for="lifespan">Expected Lifespan (years):</label>
+      </div>
     </div>
-    <div>
-      <label for="totalWeeklyHours">Total weekly hours:</label>
-      <input type="number" id="totalWeeklyHours" min="1" value="168">
+    <div class="row">
+      <div class="input-field col s12">
+        <input id="totalWeeklyHours" type="number" class="validate" min="1" value="168">
+        <label for="totalWeeklyHours">Total weekly hours:</label>
+      </div>
     </div>
-    <div>
-      <label for="netWorth">Current Net Worth ($):</label>
-      <input type="number" id="netWorth" value="1000000">
+    <div class="row">
+      <div class="input-field col s12">
+        <input id="netWorth" type="number" class="validate" value="1000000">
+        <label for="netWorth">Current Net Worth ($):</label>
+      </div>
     </div>
-    <div>
-      <label for="monthSpendingInput">Month Total Spending in USD:</label>
-      <input type="number" id="monthSpendingInput">
+    <div class="row">
+      <div class="input-field col s12">
+        <input id="monthSpendingInput" type="number" class="validate">
+        <label for="monthSpendingInput">Month Total Spending in USD:</label>
+      </div>
     </div>
-    <div>
-      <label for="monthSavingsInput">Month Savings in USD:</label>
-      <input type="number" id="monthSavingsInput">
+    <div class="row">
+      <div class="input-field col s12">
+        <input id="monthSavingsInput" type="number" class="validate">
+        <label for="monthSavingsInput">Month Savings in USD:</label>
+      </div>
     </div>
     <!-- Calculate button removed -->
   </div>
-  <div id="errorMessages" style="color: red; text-align: center; margin-bottom: 10px;"></div>
-  <div id="result">
+  <div id="errorMessages" class="col s12" style="color: red; text-align: center; margin-bottom: 10px;"></div> <!-- Added col s12 for consistency if errorMessages is moved into a row -->
+  <div id="result" class="card-panel blue-grey lighten-5"> <!-- Added Materialize classes -->
     <!-- totalLifeHoursResult, weeklyHoursResult, hourWorthResult, and financialFreedomResult divs removed for consolidation -->
     <!-- Content will be directly set by popup.js using innerHTML -->
   </div>
-
+</div> <!-- Closing container div -->
+  <!-- Materialize JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

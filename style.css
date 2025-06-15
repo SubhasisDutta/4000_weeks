@@ -1,38 +1,38 @@
-body {
+/* body {
   font-family: sans-serif;
   width: 425px; /* Adjust width as needed */
   padding: 8px; /* Reduced padding */
   background-color: #f0f8ff; /* AliceBlue */
-}
+/* } */
 
-h3 {
+/* h3 {
   text-align: center;
   color: #333;
   margin-top: 0;
   margin-bottom: 12px; /* Reduced margin */
-}
+/* } */
 
-div {
+/* div {
   margin-bottom: 8px; /* Reduced margin */
-}
+/* } */
 
-label {
+/* label {
   display: block;
   margin-bottom: 5px;
   font-size: 14px;
   color: #555;
-}
+/* } */
 
-input[type="date"],
+/* input[type="date"],
 input[type="number"] {
   width: calc(100% - 12px); /* Account for padding */
   padding: 5px;
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box; /* Important for width calculation */
-}
+/* } */
 
-button {
+/* button {
   background-color: #28a745; /* Bootstrap success green */
   color: white;
   padding: 10px 15px;
@@ -44,31 +44,32 @@ button {
   margin-top: 10px;
   font-size: 15px;
   border-color: #28a745; /* Added for consistency */
-}
+/* } */
 
-button:hover {
+/* button:hover {
   background-color: #218838; /* Darker green */
   border-color: #1e7e34; /* Darker border for hover */
-}
+/* } */
 
-div#calculationInputsDiv { /* Added ID for specificity */
+/* div#calculationInputsDiv { /* Added ID for specificity */
   background-color: #faf0e6; /* Linen */
   padding: 10px;
   border-radius: 5px;
   margin-top: 5px;
   /* margin-bottom will still be 8px due to generic div rule */
-}
+/* } */
 
-div#errorMessages { /* Added ID for specificity, adjusted from inline */
-  background-color: #ffe0e0; /* Light pink */
-  border: 1px solid #ffc0c0; /* Slightly darker red border */
-  padding: 8px;
-  border-radius: 4px;
-  color: red; /* This was inline, kept here */
-  text-align: center; /* This was inline, kept here */
-  margin-bottom: 8px; /* Consistent with other divs */
+/* Old #errorMessages, will be replaced by new one below, kept for reference during transition */
+/* div#errorMessages { /* Added ID for specificity, adjusted from inline */
+/*  background-color: #ffe0e0; /* Light pink */
+/*  border: 1px solid #ffc0c0; /* Slightly darker red border */
+/*  padding: 8px;
+/*  border-radius: 4px;
+/*  color: red; /* This was inline, kept here */
+/*  text-align: center; /* This was inline, kept here */
+/*  margin-bottom: 8px; /* Consistent with other divs */
   /* margin-top could be added if needed, or rely on previous element's margin-bottom */
-}
+/* } */
 
 div#result { /* Added ID for specificity */
   margin-top: 15px; /* This provides good separation, can keep or adjust */
@@ -82,24 +83,24 @@ div#result { /* Added ID for specificity */
   color: #333;
 }
 
-#hourWorthResult,
+/* #hourWorthResult,
 #financialFreedomResult {
   margin-top: 8px; /* Add some space above these new results */
   font-size: 15px; /* Slightly smaller or same as main result, adjust as needed */
   /* text-align is inherited from #result */
   /* color is inherited from #result */
-}
+/* } */
 
 /* Styling for the toggle switch container */
-.toggle-switch-container {
+/* .toggle-switch-container {
   /* margin-bottom: 10px; */ /* This is already covered by the generic 'div' rule, but could be adjusted if needed */
-  display: flex; /* Aligns checkbox and label nicely on the same line */
-  align-items: center; /* Vertically aligns items in the center */
-}
+/*  display: flex; /* Aligns checkbox and label nicely on the same line */
+/*  align-items: center; /* Vertically aligns items in the center */
+/* } */
 
-.toggle-switch-container input[type="checkbox"] {
+/* .toggle-switch-container input[type="checkbox"] {
   margin-right: 5px; /* Adds some space between the checkbox and the label */
-}
+/* } */
 
 /*
   Note on #calculationInputsDiv visibility:
@@ -113,33 +114,86 @@ div#result { /* Added ID for specificity */
    it would be handled here (e.g., #calculationInputsDiv label {}).
    For now, existing label and text colors are assumed sufficient. */
 
-/* Progress Bar Styles */
+/* Progress Bar Styles - Materialize Palette Update */
 #progress-bar-container {
   width: 100%;
-  margin-bottom: 10px; /* Space below the whole progress bar component */
-  font-size: 12px; /* Smaller font for text around/above the bar */
-  text-align: center; /* Center the "Progress: X / Y" text */
+  margin-bottom: 15px; /* Adjusted margin */
+  font-size: 13px;   /* Slightly larger for clarity */
+  text-align: center;
+}
+
+#progress-bar-text-details {
+  margin-bottom: 6px; /* Adjusted margin */
+  color: #37474f; /* blue-grey text text-darken-2 for better readability */
 }
 
 #progress-bar-outer {
   width: 100%;
-  background-color: #e0e0e0; /* Light grey for the track */
-  border-radius: 4px;
-  padding: 2px; /* A small padding to inset the inner bar slightly */
+  background-color: #eceff1; /* blue-grey lighten-5 */
+  border-radius: 5px;     /* Slightly more rounded */
+  padding: 3px;           /* Adjusted padding */
   box-sizing: border-box;
 }
 
 #progress-bar-inner {
-  height: 22px; /* Height of the actual bar */
-  background-color: #4CAF50; /* Green for progress */
-  border-radius: 3px; /* Slightly smaller radius for inner bar */
+  height: 24px;             /* Slightly taller */
+  background-color: #26a69a;  /* teal lighten-1 */
+  border-radius: 3px;
   text-align: center;
-  line-height: 22px; /* Vertically center text in bar */
+  line-height: 24px;        /* Match height */
   color: white;
-  font-weight: bold;
-  transition: width 0.3s ease-in-out; /* Smooth transition for width changes */
+  font-weight: bold; /* Keeping bold for percentage */
+  transition: width 0.4s ease-in-out; /* Slightly slower transition */
 }
 
-#progress-bar-text-details {
-  margin-bottom: 4px; /* Space between details text and the bar itself */
+/* Global Font Override */
+body {
+  font-family: 'Calibri', Arial, sans-serif; /* Added Arial as a common fallback */
+  width: 450px; /* Initial width, Materialize container might affect this */
+  min-height: 780px; /* Tentative new value, adjust based on actual content height */
+  /* background-color: #f4f4f4; /* Optional: A light grey background for the whole body */
+  padding-top: 10px; /* Add some padding at the top if using .container */
+}
+
+/* Ensure Materialize container doesn't excessively restrict width if body width is set */
+.container {
+  width: 100%; /* Make container take up the body width we define */
+  max-width: none; /* Override Materialize's max-width for .container if needed */
+}
+
+/* Override Materialize's default font for input fields if necessary */
+input[type="date"],
+input[type="number"],
+input[type="text"], /* Add other input types if used */
+label {
+  font-family: 'Calibri', Arial, sans-serif !important; /* Force Calibri on labels and inputs */
+}
+
+/* Specific styling for error messages - can be adapted later */
+#errorMessages {
+  background-color: #ffebee; /* Material Design light red */
+  color: #c62828; /* Material Design dark red text */
+  padding: 10px;
+  border-radius: 4px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* Spacing Adjustments */
+h5.center-align { /* Targeting the main title */
+  margin-bottom: 20px !important; /* Add space below title, !important if Materialize overrides too strongly */
+}
+
+.switch.section { /* Targeting the toggle switch container */
+  margin-top: 15px; /* Space above switch */
+  margin-bottom: 25px !important; /* Ensure space below switch before input card, !important if needed */
+}
+
+#calculationInputsDiv.card-panel {
+  margin-bottom: 25px !important; /* Space between input card and result card, !important if needed */
+}
+
+#result.card-panel {
+  margin-top: 25px !important; /* Ensure space if calculationInputsDiv is hidden, !important if needed */
 }
