@@ -1,16 +1,16 @@
 document.addEventListener('DOMContentLoaded', function () {
   const dobInput = document.getElementById('dob');
   const lifespanInput = document.getElementById('lifespan');
-  const calculateBtn = document.getElementById('calculateBtn');
+  // calculateBtn selector removed
   const resultDiv = document.getElementById('result');
   const toggleInputsBtn = document.getElementById('toggleInputsBtn');
   const calculationInputsDiv = document.getElementById('calculationInputsDiv');
   const totalWeeklyHoursInput = document.getElementById('totalWeeklyHours');
-  const weeklyHoursResultDiv = document.getElementById('weeklyHoursResult');
-  const totalLifeHoursResultDiv = document.getElementById('totalLifeHoursResult');
+  // weeklyHoursResultDiv selector removed
+  // totalLifeHoursResultDiv selector removed
   const netWorthInput = document.getElementById('netWorth');
-  const hourWorthResultDiv = document.getElementById('hourWorthResult');
-  const financialFreedomResultDiv = document.getElementById('financialFreedomResult');
+  // hourWorthResultDiv selector removed
+  // financialFreedomResultDiv selector removed
   const errorMessagesDiv = document.getElementById('errorMessages');
 
   function getValidatedWeeklyHours() {
@@ -65,67 +65,41 @@ document.addEventListener('DOMContentLoaded', function () {
     // Automatically calculate if all values are present
     if (items.dob && items.lifespan && items.netWorth) {
         performCalculation();
-    } else { // If not all main calc inputs are there, still try to calc weekly hours
-        calculateWeeklyHours();
-        // also clear financial results if not all inputs are present
-        if (hourWorthResultDiv) hourWorthResultDiv.textContent = '';
-        if (financialFreedomResultDiv) financialFreedomResultDiv.textContent = '';
+    } else {
+        // If not all main calc inputs are there, we still want to update display with N/A
+        performCalculation();
     }
   });
 
-  calculateBtn.addEventListener('click', performCalculation);
+  // calculateBtn.addEventListener('click', performCalculation); // Removed
   dobInput.addEventListener('change', () => {
-      if (lifespanInput.value) performCalculation();
+      // No need to check lifespanInput.value, performCalculation handles it
+      performCalculation();
   });
   lifespanInput.addEventListener('input', () => {
-      if (dobInput.value) performCalculation();
+      // No need to check dobInput.value, performCalculation handles it
+      performCalculation();
   });
   totalWeeklyHoursInput.addEventListener('input', () => {
     const value = totalWeeklyHoursInput.value;
     chrome.storage.local.set({ totalWeeklyHours: value }, () => {
-        calculateWeeklyHours(); // Always update weekly hours
-        // If other fields are also valid, update the main calculation
-        if (dobInput.value && lifespanInput.value) {
-            performCalculation();
-        }
+        // Call performCalculation directly, it handles checks
+        performCalculation();
     });
   });
   netWorthInput.addEventListener('input', () => {
     const value = netWorthInput.value;
     chrome.storage.local.set({ netWorth: value }, () => {
-        // If other fields are also valid, update the main calculation
-        if (dobInput.value && lifespanInput.value) {
-            performCalculation();
-        } else { // If main fields not valid, clear financial results
-            if (hourWorthResultDiv) hourWorthResultDiv.textContent = '';
-            if (financialFreedomResultDiv) financialFreedomResultDiv.textContent = '';
-        }
+        // Call performCalculation directly, it handles checks
+        performCalculation();
     });
   });
 
-  function calculateWeeklyHours() {
-    const now = new Date();
-    const totalConfiguredWeeklyHours = getValidatedWeeklyHours();
-
-    const currentDay = now.getDay(); // Sunday is 0, Monday is 1, ..., Saturday is 6
-    const dayOfWeek = (currentDay === 0) ? 6 : currentDay - 1; // Monday is 0, ..., Sunday is 6
-
-    const hoursPassedInWeek = (dayOfWeek * 24) + now.getHours() + (now.getMinutes() / 60) + (now.getSeconds() / 3600);
-    const remainingWeeklyHours = totalConfiguredWeeklyHours - hoursPassedInWeek;
-
-    if (weeklyHoursResultDiv) {
-        weeklyHoursResultDiv.textContent = `Hours remaining this week: ${remainingWeeklyHours.toFixed(2)}`;
-        if (remainingWeeklyHours < 0) {
-            weeklyHoursResultDiv.style.color = 'orange'; // Or some other indicator
-        } else {
-            weeklyHoursResultDiv.style.color = 'black';
-        }
-    }
-  }
+  // function calculateWeeklyHours() removed entirely
 
   function performCalculation() {
     if (errorMessagesDiv) errorMessagesDiv.textContent = '';
-    resultDiv.style.color = 'black'; // Reset result color
+    // resultDiv.style.color = 'black'; // color is handled by errorMessagesDiv or general result styling
 
     const dobString = dobInput.value;
     const lifespanYears = parseInt(lifespanInput.value, 10);
@@ -137,88 +111,81 @@ document.addEventListener('DOMContentLoaded', function () {
     let displayHourWorth = "N/A";
     let displayFinancialFreedom = "N/A";
 
-    // Initial state for other divs
-    if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = '';
-    if (weeklyHoursResultDiv) weeklyHoursResultDiv.textContent = '';
+    // Initial state for other divs - REMOVED as these divs are gone
+    // if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = '';
+    // if (weeklyHoursResultDiv) weeklyHoursResultDiv.textContent = '';
 
-    const validatedNetWorth = getValidatedNetWorth(); // Get it once for financial freedom if possible
+    const validatedNetWorth = getValidatedNetWorth(); // Get it once
 
     if (!dobString) {
       if (errorMessagesDiv) errorMessagesDiv.textContent = 'Please enter your date of birth.';
-      // display variables remain "N/A"
     } else if (isNaN(lifespanYears) || lifespanYears <= 0) {
       if (errorMessagesDiv) errorMessagesDiv.textContent = 'Please enter a valid lifespan in years.';
-      // display variables remain "N/A"
     } else {
       const dob = new Date(dobString);
       if (isNaN(dob.getTime())) {
         if (errorMessagesDiv) errorMessagesDiv.textContent = 'Invalid date of birth format.';
-        // display variables remain "N/A"
       } else {
         const currentDate = new Date();
         if (dob > currentDate) {
           if (errorMessagesDiv) errorMessagesDiv.textContent = 'Date of birth cannot be in the future.';
-          // display variables remain "N/A"
         } else {
           // All primary inputs are valid enough to proceed with calculations
           const expectedDeathDate = new Date(dob);
           expectedDeathDate.setFullYear(dob.getFullYear() + lifespanYears);
           const remainingMilliseconds = expectedDeathDate - currentDate;
-          const remainingTotalHours = remainingMilliseconds / (1000 * 60 * 60);
+          // const remainingTotalHours = remainingMilliseconds / (1000 * 60 * 60); // No longer displayed
           const actualTotalWeeklyHours = getValidatedWeeklyHours();
 
           if (remainingMilliseconds < 0) {
-            // 3. "Lived Past Lifespan" Block
             if (errorMessagesDiv) errorMessagesDiv.textContent = 'You have lived past your expected lifespan!';
-            resultDiv.style.color = 'green'; // Special color for this message in resultDiv
+            // resultDiv.style.color = 'green'; // Style error message div directly if needed
             displayRemainingWeeks = "0";
             displayRemainingHours = "0";
             displayHourWorth = "N/A";
             displayFinancialFreedom = (validatedNetWorth * 0.01 / 12);
-            if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = 'Approximately 0 total hours remaining.';
+            // if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = 'Approximately 0 total hours remaining.'; // Removed
           } else {
-            // 4. Main Calculation Block
             const weeksInMs = 1000 * 60 * 60 * 24 * 7;
             const calculatedRemainingWeeks = Math.ceil(remainingMilliseconds / weeksInMs);
             const calculatedRemainingHours = calculatedRemainingWeeks * actualTotalWeeklyHours;
 
-            displayRemainingWeeks = calculatedRemainingWeeks; // Number
-            displayRemainingHours = calculatedRemainingHours; // Number
+            displayRemainingWeeks = calculatedRemainingWeeks;
+            displayRemainingHours = calculatedRemainingHours;
 
             if (calculatedRemainingHours > 0) {
-              displayHourWorth = (validatedNetWorth / calculatedRemainingHours); // Number
+              displayHourWorth = (validatedNetWorth / calculatedRemainingHours);
             } else {
               displayHourWorth = "N/A";
             }
-            displayFinancialFreedom = (validatedNetWorth * 0.01 / 12); // Number
+            displayFinancialFreedom = (validatedNetWorth * 0.01 / 12);
 
-            if (totalLifeHoursResultDiv) {
-              totalLifeHoursResultDiv.textContent = `Approximately ${remainingTotalHours.toLocaleString(undefined, {maximumFractionDigits: 0})} total hours remaining.`;
-              totalLifeHoursResultDiv.style.color = 'black';
-            }
+            // if (totalLifeHoursResultDiv) { // Removed
+            //   totalLifeHoursResultDiv.textContent = `Approximately ${remainingTotalHours.toLocaleString(undefined, {maximumFractionDigits: 0})} total hours remaining.`;
+            //   totalLifeHoursResultDiv.style.color = 'black';
+            // }
           }
-          // Save valid inputs (only if we got this far, meaning basic dates were valid)
           chrome.storage.local.set({
             dob: dobString,
             lifespan: lifespanYears.toString(),
             netWorth: validatedNetWorth.toString()
           });
-          // Calculate and display weekly hours separately (only if dates were valid)
-          calculateWeeklyHours();
+          // calculateWeeklyHours(); // Removed call
         }
       }
     }
 
-    // 6. Management of Other Divs (Post-error check)
-    if (errorMessagesDiv && errorMessagesDiv.textContent !== '') {
-        if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = '';
-        if (weeklyHoursResultDiv) weeklyHoursResultDiv.textContent = '';
-    }
+    // Management of Other Divs (Post-error check) - REMOVED as these divs are gone
+    // if (errorMessagesDiv && errorMessagesDiv.textContent !== '') {
+    //     if (totalLifeHoursResultDiv) totalLifeHoursResultDiv.textContent = '';
+    //     if (weeklyHoursResultDiv) weeklyHoursResultDiv.textContent = '';
+    // }
 
+    // Final Update of Result Div (Consolidated)
+    let line1 = `You have approximately : ${(typeof displayRemainingWeeks === 'number' ? displayRemainingWeeks.toLocaleString() : displayRemainingWeeks)} weeks (~ ${(typeof displayRemainingHours === 'number' ? displayRemainingHours.toLocaleString(undefined, {maximumFractionDigits: 0}) : displayRemainingHours)} hours) remaining.`;
+    let line2 = `Each hour is worth: ${typeof displayHourWorth === 'number' ? '$' + displayHourWorth.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : displayHourWorth}.`;
+    let line3 = `Your Financial Freedom number (monthly): ${typeof displayFinancialFreedom === 'number' ? '$' + displayFinancialFreedom.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : displayFinancialFreedom}.`;
 
-    // 5. Final Update of Result Divs
-    resultDiv.textContent = `You have approximately : ${(typeof displayRemainingWeeks === 'number' ? displayRemainingWeeks.toLocaleString() : displayRemainingWeeks)} weeks (~ ${(typeof displayRemainingHours === 'number' ? displayRemainingHours.toLocaleString(undefined, {maximumFractionDigits: 0}) : displayRemainingHours)} hours) remaining.`;
-    hourWorthResultDiv.textContent = `Each hour is worth: ${typeof displayHourWorth === 'number' ? '$' + displayHourWorth.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : displayHourWorth}.`;
-    financialFreedomResultDiv.textContent = `Your Financial Freedom number (monthly): ${typeof displayFinancialFreedom === 'number' ? '$' + displayFinancialFreedom.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : displayFinancialFreedom}.`;
+    resultDiv.innerHTML = `${line1}<br>${line2}<br>${line3}`;
   }
 });
