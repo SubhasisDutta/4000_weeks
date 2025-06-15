@@ -1,19 +1,19 @@
 body {
   font-family: sans-serif;
   width: 250px; /* Adjust width as needed */
-  padding: 10px;
-  background-color: #f4f4f4;
+  padding: 8px; /* Reduced padding */
+  background-color: #f0f8ff; /* AliceBlue */
 }
 
 h3 {
   text-align: center;
   color: #333;
   margin-top: 0;
-  margin-bottom: 15px;
+  margin-bottom: 12px; /* Reduced margin */
 }
 
 div {
-  margin-bottom: 10px;
+  margin-bottom: 8px; /* Reduced margin */
 }
 
 label {
@@ -33,27 +33,48 @@ input[type="number"] {
 }
 
 button {
-  background-color: #007bff;
+  background-color: #28a745; /* Bootstrap success green */
   color: white;
   padding: 10px 15px;
-  border: none;
+  border: none; /* Assuming border-color will be set with background or removed if not needed */
   border-radius: 4px;
   cursor: pointer;
   display: block; /* Make button take full width */
   width: 100%;
   margin-top: 10px;
   font-size: 15px;
+  border-color: #28a745; /* Added for consistency */
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #218838; /* Darker green */
+  border-color: #1e7e34; /* Darker border for hover */
 }
 
-#result {
-  margin-top: 15px;
+div#calculationInputsDiv { /* Added ID for specificity */
+  background-color: #faf0e6; /* Linen */
   padding: 10px;
-  background-color: #e9ecef;
-  border: 1px solid #ced4da;
+  border-radius: 5px;
+  margin-top: 5px;
+  /* margin-bottom will still be 8px due to generic div rule */
+}
+
+div#errorMessages { /* Added ID for specificity, adjusted from inline */
+  background-color: #ffe0e0; /* Light pink */
+  border: 1px solid #ffc0c0; /* Slightly darker red border */
+  padding: 8px;
+  border-radius: 4px;
+  color: red; /* This was inline, kept here */
+  text-align: center; /* This was inline, kept here */
+  margin-bottom: 8px; /* Consistent with other divs */
+  /* margin-top could be added if needed, or rely on previous element's margin-bottom */
+}
+
+div#result { /* Added ID for specificity */
+  margin-top: 15px; /* This provides good separation, can keep or adjust */
+  padding: 8px; /* Reduced padding */
+  background-color: #e6f7e6; /* Honeydew equivalent */
+  border: 1px solid #cce8cc; /* Slightly darker green border */
   border-radius: 4px;
   text-align: center;
   font-size: 16px;
@@ -85,3 +106,9 @@ button:hover {
   The display property (block/none) for #calculationInputsDiv is controlled by popup.js.
   When set to 'none', it will not occupy any space, as per standard browser behavior.
 */
+
+/* Ensure text colors provide good contrast. #333 and #555 are dark grays,
+   which should be fine against AliceBlue, Linen, and light greenish backgrounds.
+   If any specific text within these new backgrounds needs adjustment,
+   it would be handled here (e.g., #calculationInputsDiv label {}).
+   For now, existing label and text colors are assumed sufficient. */
