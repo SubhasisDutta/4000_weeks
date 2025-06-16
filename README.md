@@ -6,9 +6,9 @@ This repository contains a Chrome extension that calculates the approximate numb
 
 *   Calculates remaining weeks and hours based on Date of Birth (DOB) and Expected Lifespan.
 *   Calculates the monetary worth of each remaining hour based on your current net worth.
-*   Estimates your "Auto Income" (passive monthly income from net worth, assuming a 1% annual return).
+*   Estimates your "Auto Income" (passive monthly income from net worth, based on a user-configurable annual return rate).
 *   Calculates your "Monthly Expense" (difference between monthly spending and savings).
-*   Determines your "Freedom Aim": the net worth required to cover your monthly expenses via passive income (based on a 1% annual return).
+*   Determines your "Freedom Aim": the net worth required to cover your monthly expenses via passive income (based on a user-configurable annual return rate).
 *   Displays a progress bar showing your current net worth against your "Freedom Aim".
 *   Shows Today's Date and your Expected Day of Passing.
 *   Inputs for:
@@ -18,6 +18,7 @@ This repository contains a Chrome extension that calculates the approximate numb
     *   Current Net Worth
     *   Month Total Spending
     *   Month Savings
+    *   Annual Return Rate (%)
 *   Option to show/hide calculation input fields for a cleaner view.
 *   Saves all your inputs locally using `chrome.storage.local` for convenience.
 *   User-friendly popup interface with input validation.
